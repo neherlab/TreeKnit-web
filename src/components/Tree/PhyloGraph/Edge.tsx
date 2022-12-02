@@ -1,14 +1,14 @@
-import { isEqual } from 'lodash'
 import React, { useMemo, useRef } from 'react'
-import { Tooltip } from 'src/components/Common/Tooltip'
-import { useEnable } from 'src/hooks/useEnable'
 import styled from 'styled-components'
 
+import { Tooltip } from 'src/components/Common/Tooltip'
+import { getGraphColor } from 'src/components/Tree/getGraphColor'
+import { useEnable } from 'src/hooks/useEnable'
+import { PHYLO_GRAPH_EDGE_THICKNESS } from 'src/components/Tree/PhyloGraph/constants'
 import { getNodesForEdge, Graph, GraphEdge } from './graph'
 
-const PathT = styled.path<{ color?: string }>`
-  fill: none;
-  stroke-width: 3px;
+const PathT = styled.path<{ color?: string; z?: number }>`
+  stroke-width: ${PHYLO_GRAPH_EDGE_THICKNESS}px;
   stroke: ${(props) => props.color ?? '#aaa'};
   pointer-events: auto;
   cursor: pointer;
@@ -16,11 +16,10 @@ const PathT = styled.path<{ color?: string }>`
 
 const PathS = styled.path<{ color?: string }>`
   fill: none;
-  stroke-width: 3px;
+  stroke-width: ${PHYLO_GRAPH_EDGE_THICKNESS}px;
   stroke: ${(props) => props.color ?? '#aaa'};
   pointer-events: auto;
   cursor: pointer;
-  stroke-linecap: round;
 `
 
 export interface EdgeProps {
@@ -38,44 +37,44 @@ export function Edge({ edge, graph }: EdgeProps) {
   const paths = useMemo(() => {
     const { source, target } = getNodesForEdge(graph, edge)
 
-    let color = '#aaa'
-    if (isEqual(source.segments, ['0'])) {
-      color = 'red'
-    } else if (isEqual(source.segments, ['1'])) {
-      color = 'blue'
-    }
+    const sourcePaths = source.segments.map((segment, i) => {
+      const color = getGraphColor(segment)
+      const corner = PHYLO_GRAPH_EDGE_THICKNESS / 2
+      const offset = i * PHYLO_GRAPH_EDGE_THICKNESS
+      return (
+        <PathT
+          key={`source-path-${segment}`}
+          ref={refVertical}
+          color={color}
+          /* prettier-ignore */
+          d={`M ${source.layout.xTBarStart + offset}, ${source.layout.yTBarStart - corner + offset} L ${source.layout.xTBarEnd + offset}, ${source.layout.yTBarEnd + corner}`}
+          onMouseEnter={openVerticalTooltip}
+          onMouseOut={closeVerticalTooltip}
+        />
+      )
+    })
 
-    const pathVertical = (
-      <PathT
-        ref={refVertical}
-        color={color}
-        d={`M ${source.layout.xTBarStart}, ${source.layout.yTBarStart} L ${source.layout.xTBarEnd}, ${source.layout.yTBarEnd}`}
-        onMouseEnter={openVerticalTooltip}
-        onMouseOut={closeVerticalTooltip}
-      />
-    )
-
-    color = '#aaa'
-    if (isEqual(target.segments, ['0'])) {
-      color = 'red'
-    } else if (isEqual(target.segments, ['1'])) {
-      color = 'blue'
-    }
-
-    const pathHorizontal = (
-      <PathS
-        ref={refHorizontal}
-        color={color}
-        d={`M ${source.layout.xTBarStart}, ${target.y} L ${target.x}, ${target.y}`}
-        onMouseEnter={openHorizontalTooltip}
-        onMouseOut={closeHorizontalTooltip}
-      />
-    )
+    const targetPaths = target.segments.map((segment, i) => {
+      const color = getGraphColor(segment)
+      const corner = PHYLO_GRAPH_EDGE_THICKNESS / 2
+      const offset = i * PHYLO_GRAPH_EDGE_THICKNESS
+      return (
+        <PathS
+          key={`target-path-${segment}`}
+          ref={refHorizontal}
+          color={color}
+          /* prettier-ignore */
+          d={`M ${source.layout.xTBarStart + corner}, ${target.y + offset} L ${target.x}, ${target.y + offset}`}
+          onMouseEnter={openHorizontalTooltip}
+          onMouseOut={closeHorizontalTooltip}
+        />
+      )
+    })
 
     return (
       <g>
-        {pathVertical}
-        {pathHorizontal}
+        {sourcePaths}
+        {targetPaths}
       </g>
     )
   }, [closeHorizontalTooltip, closeVerticalTooltip, edge, graph, openHorizontalTooltip, openVerticalTooltip])

@@ -1,6 +1,7 @@
-import { isEqual } from 'lodash'
 import React, { ReactElement, useMemo, useRef } from 'react'
+import { getGraphColor } from 'src/components/Tree/getGraphColor'
 import styled from 'styled-components'
+import { mix, opacify } from 'polished'
 
 import { useEnable } from 'src/hooks/useEnable'
 import { Tooltip } from 'src/components/Common/Tooltip'
@@ -20,6 +21,7 @@ export interface CladeTreeNodeProps {
 
 export function Node({ node, graph }: CladeTreeNodeProps): ReactElement {
   const { x, y, name, id, segments } = node
+  const isLeaf = useMemo(() => isLeafNode(graph, id), [graph, node])
   const ref = useRef<SVGCircleElement>(null)
   const [isTooltipOpen, openTooltip, closeTooltip] = useEnable(false)
 
@@ -43,15 +45,16 @@ export function Node({ node, graph }: CladeTreeNodeProps): ReactElement {
   }, [graph, id, name, x, y])
 
   const circle = useMemo(() => {
-    let color = '#aaa'
-    if (isEqual(segments, ['0'])) {
-      color = 'red'
-    } else if (isEqual(segments, ['1'])) {
-      color = 'blue'
+    if (!isLeaf) {
+      return null
     }
 
+    let color = segments.reduce((color, segment) => {
+      return mix(0.5, color, getGraphColor(segment))
+    }, '#00000000')
+    color = opacify(1)(color)
     return <NodeCircle ref={ref} cx={x} cy={y} fill={color} onMouseEnter={openTooltip} onMouseLeave={closeTooltip} />
-  }, [closeTooltip, segments, openTooltip, x, y])
+  }, [isLeaf, segments, x, y, openTooltip, closeTooltip])
 
   const elements = useMemo(() => {
     return (
