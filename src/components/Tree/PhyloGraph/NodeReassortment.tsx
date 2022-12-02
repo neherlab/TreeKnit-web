@@ -1,5 +1,4 @@
-import { isNil } from 'lodash'
-import React, { ReactElement, RefObject, useMemo, useRef } from 'react'
+import React, { ReactElement, useMemo, useRef } from 'react'
 import { getGraphColor, mixMultipleColors } from 'src/components/Tree/getGraphColor'
 import styled from 'styled-components'
 import { opacify } from 'polished'
@@ -15,22 +14,15 @@ const NodeCircle = styled.circle<{ fill?: string }>`
   r: ${PHYLO_GRAPH_NODE_RADIUS};
 `
 
-const NodeSquare = styled.rect<{ fill?: string }>`
-  rx: 2px;
-  fill: ${(props) => props.fill ?? '#555'};
-  stroke: black;
-  filter: drop-shadow(0px 0px 2px #000a);
-`
-
 export interface CladeTreeNodeProps {
   node: GraphNode
   graph: Graph
 }
 
 export function Node({ node, graph }: CladeTreeNodeProps): ReactElement {
-  const { x, y, name, id, segments, reassortmentTwin } = node
+  const { x, y, name, id, segments } = node
   const isLeaf = useMemo(() => isLeafNode(graph, id), [graph, id])
-  const ref = useRef<SVGElement>(null)
+  const ref = useRef<SVGCircleElement>(null)
   const [isTooltipOpen, openTooltip, closeTooltip] = useEnable(false)
 
   const text = useMemo(() => {
@@ -52,49 +44,24 @@ export function Node({ node, graph }: CladeTreeNodeProps): ReactElement {
     )
   }, [isLeaf, name, x, y])
 
-  const marker = useMemo(() => {
-    if (!isLeaf && isNil(reassortmentTwin)) {
+  const circle = useMemo(() => {
+    if (!isLeaf) {
       return null
     }
 
     let color = mixMultipleColors(segments.map((segment) => getGraphColor(segment)))
     color = opacify(1)(color)
-
-    if (!isNil(reassortmentTwin)) {
-      return (
-        <NodeSquare
-          ref={ref as RefObject<SVGRectElement>}
-          x={x - PHYLO_GRAPH_NODE_RADIUS / 2}
-          y={y - PHYLO_GRAPH_NODE_RADIUS / 2}
-          fill={color}
-          width={PHYLO_GRAPH_NODE_RADIUS * 2}
-          height={PHYLO_GRAPH_NODE_RADIUS * 2}
-          onMouseEnter={openTooltip}
-          onMouseLeave={closeTooltip}
-        />
-      )
-    }
-
-    return (
-      <NodeCircle
-        ref={ref as RefObject<SVGCircleElement>}
-        cx={x}
-        cy={y}
-        fill={color}
-        onMouseEnter={openTooltip}
-        onMouseLeave={closeTooltip}
-      />
-    )
-  }, [isLeaf, reassortmentTwin, segments, x, y, openTooltip, closeTooltip])
+    return <NodeCircle ref={ref} cx={x} cy={y} fill={color} onMouseEnter={openTooltip} onMouseLeave={closeTooltip} />
+  }, [isLeaf, segments, x, y, openTooltip, closeTooltip])
 
   const elements = useMemo(() => {
     return (
       <g>
-        {marker}
+        {circle}
         {text}
       </g>
     )
-  }, [marker, text])
+  }, [circle, text])
 
   const tooltip = useMemo(() => {
     return (

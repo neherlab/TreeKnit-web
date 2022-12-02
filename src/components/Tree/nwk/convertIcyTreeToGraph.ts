@@ -1,5 +1,5 @@
 /* eslint-disable no-loops/no-loops */
-import { sortBy } from 'lodash'
+import { isEqual, sortBy, uniqWith } from 'lodash'
 import { GraphEdge, GraphNodeRaw, GraphRaw } from 'src/components/Tree/PhyloGraph/graph'
 
 export interface IcyTreeNode {
@@ -51,20 +51,19 @@ function flattenTreeEdgesRecursive(node: IcyTreeNodeWithIds, nodes: GraphNodeRaw
 }
 
 /** Add edges for nodes with duplicated names (e.g. recombinant/reassortment nodes) */
-function connectDuplicatedNodes(nodes: GraphNodeRaw[]) {
-  const reassortmentEdges = []
+function connectDuplicatedNodes(nodes: GraphNodeRaw[]): GraphEdge[] {
+  const reassortmentEdges: { source: string; target: string }[] = []
   for (const left of nodes) {
     for (const right of nodes) {
       if (left.name === right.name && left.id !== right.id) {
         const [source, target] = sortBy([left, right], (node) => node.id)
-        reassortmentEdges.push({
-          id: reassortmentEdges.length.toString(),
-          source: source.id,
-          target: target.id,
-          branchLength: undefined,
-        })
+        if (!reassortmentEdges.some((edge) => edge.source === source.id && edge.target === target.id)) {
+          left.reassortmentTwin = right.id
+          right.reassortmentTwin = left.id
+          reassortmentEdges.push({ source: source.id, target: target.id })
+        }
       }
     }
   }
-  return reassortmentEdges
+  return uniqWith(reassortmentEdges, isEqual).map((edge, id) => ({ ...edge, id: id.toString() }))
 }

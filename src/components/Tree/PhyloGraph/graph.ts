@@ -24,6 +24,7 @@ export interface GraphNodeRaw {
   name: string
   height: number
   segments: string[]
+  reassortmentTwin?: string
 }
 
 export interface GraphNode extends GraphNodeRaw {
