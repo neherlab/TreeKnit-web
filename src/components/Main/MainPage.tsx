@@ -6,23 +6,31 @@ import { Layout } from 'src/components/Layout/Layout'
 import { UploadBox } from 'src/components/UploadZone/UploadBox'
 import { Tree } from 'src/components/Tree/Tree'
 import { readFile } from 'src/helpers/readFile'
-import { sanitizeError } from 'src/helpers/sanitizeError'
 import { useTranslationSafe } from 'src/helpers/useTranslationSafe'
 import { parseNwk } from 'src/components/Tree/nwk/parseNwk'
 
 export function MainPage() {
   const { t } = useTranslationSafe()
   const [graph, setGraph] = useState<GraphRaw | undefined>(undefined)
-  const [error, setError] = useState<Error | undefined>(undefined)
+  const [error, setError] = useState<string | undefined>(undefined)
 
-  const onUpload = useCallback((file: File[]) => {
-    readFile(file[0])
-      .then((content) => {
-        const graph = parseNwk(content)
-        return setGraph(graph)
-      })
-      .catch((error) => setError(sanitizeError(error)))
-  }, [])
+  const onUpload = useCallback(
+    (file: File[]) => {
+      readFile(file[0])
+        .then((content) => {
+          const graph = parseNwk(content)
+          setGraph(graph)
+          setError(undefined)
+          return undefined
+        })
+        .catch((error_) => {
+          setGraph(undefined)
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+          setError(`Error: ${error_?.message ?? t('Unknown error')}`)
+        })
+    },
+    [t],
+  )
 
   const mainComponent = useMemo(() => {
     if (graph) {
@@ -35,17 +43,21 @@ export function MainPage() {
     if (!error) {
       return null
     }
-    return <UncontrolledAlert>{error?.message ?? t('Unknown error')}</UncontrolledAlert>
-  }, [error, t])
+    return (
+      <Row noGutters className="my-2">
+        <Col>
+          <UncontrolledAlert color="danger">{error}</UncontrolledAlert>
+        </Col>
+      </Row>
+    )
+  }, [error])
 
   return (
     <Layout>
       <Row noGutters className="w-100 h-100">
         <Col className="w-100 h-100">{mainComponent}</Col>
       </Row>
-      <Row noGutters>
-        <Col>{errorComponent}</Col>
-      </Row>
+      {errorComponent}
     </Layout>
   )
 }
