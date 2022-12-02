@@ -4,7 +4,7 @@ import { addWebpackLoader } from './lib/addWebpackLoader'
 
 export default function withRaw(nextConfig: NextConfig) {
   return addWebpackLoader(nextConfig, (_webpackConfig, _context) => ({
-    test: /\.(txt|fasta|gff|csv|tsv)$/i,
+    test: /\.(txt|fasta|gff|csv|tsv|nwk)$/i,
     type: 'asset/source',
   }))
 }
