@@ -7,7 +7,7 @@ export interface IcyTreeNode {
   branchLength: number
   height: number
   annotation: {
-    segments: string[]
+    segments?: string[]
   }
   children: IcyTreeNode[]
 }
@@ -34,7 +34,7 @@ export function convertIcyTreeToGraph(tree: IcyTreeNode): GraphRaw {
 function flattenTreeNodesRecursive(node: IcyTreeNode, nodes: GraphNodeRaw[]): IcyTreeNodeWithIds {
   const id = nodes.length.toString()
 
-  nodes.push({ id, name: node.label, segments: node.annotation.segments, height: node.height })
+  nodes.push({ id, name: node.label, segments: node.annotation.segments ?? [], height: node.height })
 
   const children = node.children ?? []
   const childrenWithIds = children.map((child) => flattenTreeNodesRecursive(child, nodes))
