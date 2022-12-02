@@ -3,6 +3,7 @@ import { concurrent } from 'fasy'
 import { isNil } from 'lodash'
 import React, { useCallback, useMemo, useState } from 'react'
 import { Button, Col, Row, UncontrolledAlert } from 'reactstrap'
+import { useResetRecoilState } from 'recoil'
 
 import type { GraphRaw } from 'src/components/Tree/PhyloGraph/graph'
 import { Layout } from 'src/components/Layout/Layout'
@@ -11,6 +12,7 @@ import { Tree } from 'src/components/Tree/Tree'
 import { readFile } from 'src/helpers/readFile'
 import { useTranslationSafe } from 'src/helpers/useTranslationSafe'
 import { parseNwk } from 'src/components/Tree/nwk/parseNwk'
+import { segmentDisplayStatesAtom } from 'src/state/tree.state'
 
 const EXAMPLES = ['arg.nwk', '3_seg.nwk', 'different_roots.nwk', 'singletons.nwk', 'small_arg.nwk']
 
@@ -18,12 +20,23 @@ export function MainPage() {
   const { t } = useTranslationSafe()
   const [graph, setGraph] = useState<GraphRaw | undefined>(undefined)
   const [error, setError] = useState<string | undefined>(undefined)
-  const removeGraph = useCallback(() => setGraph(undefined), [])
-  const loadGraph = useCallback((content: string) => {
-    const graph = parseNwk(content)
-    setGraph(graph)
-    setError(undefined)
-  }, [])
+
+  const resetSegmentDisplayStates = useResetRecoilState(segmentDisplayStatesAtom)
+
+  const removeGraph = useCallback(() => {
+    resetSegmentDisplayStates()
+    setGraph(undefined)
+  }, [resetSegmentDisplayStates])
+
+  const loadGraph = useCallback(
+    (content: string) => {
+      resetSegmentDisplayStates()
+      const graph = parseNwk(content)
+      setGraph(graph)
+      setError(undefined)
+    },
+    [resetSegmentDisplayStates],
+  )
 
   const onUpload = useCallback(
     (file: File[]) => {
@@ -32,12 +45,13 @@ export function MainPage() {
           return loadGraph(content)
         })
         .catch((error_) => {
+          resetSegmentDisplayStates()
           setGraph(undefined)
           // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
           setError(`Error: ${error_?.message ?? t('Unknown error')}`)
         })
     },
-    [loadGraph, t],
+    [loadGraph, resetSegmentDisplayStates, t],
   )
 
   const mainComponent = useMemo(() => {

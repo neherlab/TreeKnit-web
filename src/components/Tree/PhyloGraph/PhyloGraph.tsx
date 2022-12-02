@@ -1,7 +1,10 @@
+import { uniq } from 'lodash'
 import React, { useMemo, useRef } from 'react'
-import { verifyGraph } from 'src/components/Tree/PhyloGraph/verifyGraph'
+import { useSetRecoilState } from 'recoil'
 import styled from 'styled-components'
 
+import { verifyGraph } from 'src/components/Tree/PhyloGraph/verifyGraph'
+import { segmentsAtom } from 'src/state/tree.state'
 import { calculateGraphLayout, GraphRaw } from './graph'
 import { Node } from './Node'
 import { Edge } from './Edge'
@@ -25,6 +28,7 @@ export interface PhyloGraphProps {
 
 export function PhyloGraph({ width, height, graph: graphRaw }: PhyloGraphProps) {
   const svgRef = useRef<SVGSVGElement>(null)
+  const setSegments = useSetRecoilState(segmentsAtom)
 
   const { nodeComponents, edgeComponents, reassortmentEdgeComponents } = useMemo(() => {
     if (!width || !height) {
@@ -37,8 +41,12 @@ export function PhyloGraph({ width, height, graph: graphRaw }: PhyloGraphProps) 
     const reassortmentEdgeComponents = graph.reassortmentEdges.map((edge) => (
       <EdgeReassortment key={edge.id} graph={graph} edge={edge} />
     ))
+
+    const segments = uniq(graph.nodes.flatMap((node) => node.segments)).sort()
+    setSegments(segments)
+
     return { nodeComponents, edgeComponents, reassortmentEdgeComponents }
-  }, [graphRaw, height, width])
+  }, [graphRaw, height, setSegments, width])
 
   return (
     <Svg xmlns="http://www.w3.org/2000/svg" width={width} height={height} ref={svgRef}>

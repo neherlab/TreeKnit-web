@@ -1,5 +1,7 @@
-import { mix } from 'polished'
+import { mix, transparentize } from 'polished'
 import React, { useMemo, useRef } from 'react'
+import { useRecoilValue } from 'recoil'
+import { segmentDisplayStatesAtom } from 'src/state/tree.state'
 import styled from 'styled-components'
 
 import { Tooltip } from 'src/components/Common/Tooltip'
@@ -23,12 +25,27 @@ export function EdgeReassortment({ edge, graph }: EdgeEdgeReassortmentProps) {
   const ref = useRef<SVGLineElement>(null)
   const [isTooltipOpen, openTooltip, closeTooltip] = useEnable(false)
 
+  const segmentStates = useRecoilValue(segmentDisplayStatesAtom)
+
   const path = useMemo(() => {
     const { source, target } = getNodesForEdge(graph, edge)
 
+    if (
+      source.segments.every((segment) => segmentStates[segment] === 'Hide') &&
+      target.segments.every((segment) => segmentStates[segment] === 'Hide')
+    ) {
+      return null
+    }
+
     const sourceColor = mixMultipleColors(source.segments.map((segment) => getGraphColor(segment)))
     const targetColor = mixMultipleColors(target.segments.map((segment) => getGraphColor(segment)))
-    const color = mix(0.5, targetColor, sourceColor)
+    let color = mix(0.5, targetColor, sourceColor)
+    if (
+      source.segments.every((segment) => ['Hide', 'Dim'].includes(segmentStates[segment])) &&
+      target.segments.every((segment) => ['Hide', 'Dim'].includes(segmentStates[segment]))
+    ) {
+      color = transparentize(0.25)(color)
+    }
 
     return (
       <ReassortmentLine
@@ -42,7 +59,7 @@ export function EdgeReassortment({ edge, graph }: EdgeEdgeReassortmentProps) {
         onMouseOut={closeTooltip}
       />
     )
-  }, [closeTooltip, edge, graph, openTooltip])
+  }, [closeTooltip, edge, graph, openTooltip, segmentStates])
 
   const tooltip = useMemo(() => {
     return (

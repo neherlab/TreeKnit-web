@@ -1,4 +1,7 @@
 import React, { useMemo, useRef } from 'react'
+import { transparentize } from 'polished'
+import { useRecoilValue } from 'recoil'
+import { segmentDisplayStatesAtom } from 'src/state/tree.state'
 import styled from 'styled-components'
 
 import { Tooltip } from 'src/components/Common/Tooltip'
@@ -34,11 +37,21 @@ export function Edge({ edge, graph }: EdgeProps) {
   const refHorizontal = useRef<SVGCircleElement>(null)
   const [isHorizontalTooltipOpen, openHorizontalTooltip, closeHorizontalTooltip] = useEnable(false)
 
+  const segmentStates = useRecoilValue(segmentDisplayStatesAtom)
+
   const paths = useMemo(() => {
     const { source, target } = getNodesForEdge(graph, edge)
 
     const sourcePaths = source.segments.map((segment, i) => {
-      const color = getGraphColor(segment)
+      if (segmentStates[segment] === 'Hide') {
+        return null
+      }
+
+      let color = getGraphColor(segment)
+      if (segmentStates[segment] === 'Dim') {
+        color = transparentize(0.75)(color)
+      }
+
       const corner = PHYLO_GRAPH_EDGE_THICKNESS / 2
       const offset = i * PHYLO_GRAPH_EDGE_THICKNESS
       return (
@@ -55,7 +68,15 @@ export function Edge({ edge, graph }: EdgeProps) {
     })
 
     const targetPaths = target.segments.map((segment, i) => {
-      const color = getGraphColor(segment)
+      if (segmentStates[segment] === 'Hide') {
+        return null
+      }
+
+      let color = getGraphColor(segment)
+      if (segmentStates[segment] === 'Dim') {
+        color = transparentize(0.75)(color)
+      }
+
       const corner = PHYLO_GRAPH_EDGE_THICKNESS / 2
       const offset = i * PHYLO_GRAPH_EDGE_THICKNESS
       return (
@@ -77,7 +98,15 @@ export function Edge({ edge, graph }: EdgeProps) {
         {targetPaths}
       </g>
     )
-  }, [closeHorizontalTooltip, closeVerticalTooltip, edge, graph, openHorizontalTooltip, openVerticalTooltip])
+  }, [
+    closeHorizontalTooltip,
+    closeVerticalTooltip,
+    edge,
+    graph,
+    openHorizontalTooltip,
+    openVerticalTooltip,
+    segmentStates,
+  ])
 
   const tooltipVertical = useMemo(() => {
     return (

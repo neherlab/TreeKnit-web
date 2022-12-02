@@ -1,8 +1,10 @@
 import { isNil } from 'lodash'
 import React, { ReactElement, RefObject, useMemo, useRef } from 'react'
+import { useRecoilValue } from 'recoil'
 import { getGraphColor, mixMultipleColors } from 'src/components/Tree/getGraphColor'
+import { segmentDisplayStatesAtom } from 'src/state/tree.state'
 import styled from 'styled-components'
-import { opacify } from 'polished'
+import { opacify, transparentize } from 'polished'
 
 import { useEnable } from 'src/hooks/useEnable'
 import { Tooltip } from 'src/components/Common/Tooltip'
@@ -29,14 +31,24 @@ export interface CladeTreeNodeProps {
 
 export function Node({ node, graph }: CladeTreeNodeProps): ReactElement {
   const { x, y, name, id, segments, reassortmentTwin } = node
+  const segmentStates = useRecoilValue(segmentDisplayStatesAtom)
   const isLeaf = useMemo(() => isLeafNode(graph, id), [graph, id])
   const ref = useRef<SVGElement>(null)
   const [isTooltipOpen, openTooltip, closeTooltip] = useEnable(false)
-
   const text = useMemo(() => {
     if (!isLeaf) {
       return null
     }
+
+    if (segments.every((segment) => segmentStates[segment] === 'Hide')) {
+      return null
+    }
+
+    let opacity = 1
+    if (segments.every((segment) => ['Hide', 'Dim'].includes(segmentStates[segment]))) {
+      opacity = 0.5
+    }
+
     return (
       <text
         x={x + PHYLO_GRAPH_NODE_RADIUS * 2}
@@ -44,21 +56,29 @@ export function Node({ node, graph }: CladeTreeNodeProps): ReactElement {
         width={PHYLO_GRAPH_NODE_RADIUS * 2}
         height={PHYLO_GRAPH_NODE_RADIUS * 2}
         fill="#222"
+        opacity={opacity}
         fontSize={PHYLO_GRAPH_NODE_LABEL_FONT_SIZE}
         textAnchor="left"
       >
         {name}
       </text>
     )
-  }, [isLeaf, name, x, y])
+  }, [isLeaf, name, segmentStates, segments, x, y])
 
   const marker = useMemo(() => {
     if (!isLeaf && isNil(reassortmentTwin)) {
       return null
     }
 
+    if (segments.every((segment) => segmentStates[segment] === 'Hide')) {
+      return null
+    }
+
     let color = mixMultipleColors(segments.map((segment) => getGraphColor(segment)))
     color = opacify(1)(color)
+    if (segments.every((segment) => ['Hide', 'Dim'].includes(segmentStates[segment]))) {
+      color = transparentize(0.5)(color)
+    }
 
     if (!isNil(reassortmentTwin)) {
       return (
@@ -85,7 +105,7 @@ export function Node({ node, graph }: CladeTreeNodeProps): ReactElement {
         onMouseLeave={closeTooltip}
       />
     )
-  }, [isLeaf, reassortmentTwin, segments, x, y, openTooltip, closeTooltip])
+  }, [isLeaf, reassortmentTwin, segments, x, y, openTooltip, closeTooltip, segmentStates])
 
   const elements = useMemo(() => {
     return (
