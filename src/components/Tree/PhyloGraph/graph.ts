@@ -10,11 +10,13 @@ import {
 export interface GraphRaw {
   nodes: GraphNodeRaw[]
   edges: GraphEdge[]
+  reassortmentEdges: GraphEdge[]
 }
 
 export interface Graph {
   nodes: GraphNode[]
   edges: GraphEdge[]
+  reassortmentEdges: GraphEdge[]
 }
 
 export interface GraphNodeRaw {
@@ -67,7 +69,7 @@ export interface GraphEdge {
   id: string
   source: string
   target: string
-  branchLength: number
+  branchLength?: number
 }
 
 export function calculateGraphLayout(graphRaw: GraphRaw, width: number, height: number): Graph {

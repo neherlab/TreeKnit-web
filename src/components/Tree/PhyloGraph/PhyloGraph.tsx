@@ -5,6 +5,7 @@ import styled from 'styled-components'
 import { calculateGraphLayout, GraphRaw } from './graph'
 import { Node } from './Node'
 import { Edge } from './Edge'
+import { EdgeReassortment } from './EdgeReassortment'
 
 const Svg = styled.svg`
   font-family: sans-serif;
@@ -25,7 +26,7 @@ export interface PhyloGraphProps {
 export function PhyloGraph({ width, height, graph: graphRaw }: PhyloGraphProps) {
   const svgRef = useRef<SVGSVGElement>(null)
 
-  const { nodeComponents, edgeComponents } = useMemo(() => {
+  const { nodeComponents, edgeComponents, reassortmentEdgeComponents } = useMemo(() => {
     if (!width || !height) {
       return { nodeComponents: [], edgeComponents: [] }
     }
@@ -33,12 +34,16 @@ export function PhyloGraph({ width, height, graph: graphRaw }: PhyloGraphProps) 
     const graph = calculateGraphLayout(graphRaw, width, height)
     const nodeComponents = graph.nodes.map((node) => <Node key={node.id} graph={graph} node={node} />)
     const edgeComponents = graph.edges.map((edge) => <Edge key={edge.id} graph={graph} edge={edge} />)
-    return { nodeComponents, edgeComponents }
+    const reassortmentEdgeComponents = graph.reassortmentEdges.map((edge) => (
+      <EdgeReassortment key={edge.id} graph={graph} edge={edge} />
+    ))
+    return { nodeComponents, edgeComponents, reassortmentEdgeComponents }
   }, [graphRaw, height, width])
 
   return (
     <Svg xmlns="http://www.w3.org/2000/svg" width={width} height={height} ref={svgRef}>
       <g>{edgeComponents}</g>
+      <g>{reassortmentEdgeComponents}</g>
       <g>{nodeComponents}</g>
     </Svg>
   )

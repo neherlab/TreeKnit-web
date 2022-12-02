@@ -21,12 +21,12 @@ export interface CladeTreeNodeProps {
 
 export function Node({ node, graph }: CladeTreeNodeProps): ReactElement {
   const { x, y, name, id, segments } = node
-  const isLeaf = useMemo(() => isLeafNode(graph, id), [graph, node])
+  const isLeaf = useMemo(() => isLeafNode(graph, id), [graph, id])
   const ref = useRef<SVGCircleElement>(null)
   const [isTooltipOpen, openTooltip, closeTooltip] = useEnable(false)
 
   const text = useMemo(() => {
-    if (!isLeafNode(graph, id)) {
+    if (!isLeaf) {
       return null
     }
     return (
@@ -42,7 +42,7 @@ export function Node({ node, graph }: CladeTreeNodeProps): ReactElement {
         {name}
       </text>
     )
-  }, [graph, id, name, x, y])
+  }, [isLeaf, name, x, y])
 
   const circle = useMemo(() => {
     if (!isLeaf) {
