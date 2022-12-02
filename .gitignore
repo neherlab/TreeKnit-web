@@ -1,0 +1,10 @@
+*.log
+\.build
+\.cache
+\.env
+\.git/
+\.idea/
+\.ignore/
+\.volumes/
+\.vscode*
+node_modules/*
