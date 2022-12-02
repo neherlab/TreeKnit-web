@@ -1,3 +1,4 @@
+import { isEqual } from 'lodash'
 import React, { ReactElement, useMemo, useRef } from 'react'
 import styled from 'styled-components'
 
@@ -18,7 +19,7 @@ export interface CladeTreeNodeProps {
 }
 
 export function Node({ node, graph }: CladeTreeNodeProps): ReactElement {
-  const { x, y, name, id, color } = node
+  const { x, y, name, id, segments } = node
   const ref = useRef<SVGCircleElement>(null)
   const [isTooltipOpen, openTooltip, closeTooltip] = useEnable(false)
 
@@ -42,8 +43,15 @@ export function Node({ node, graph }: CladeTreeNodeProps): ReactElement {
   }, [graph, id, name, x, y])
 
   const circle = useMemo(() => {
+    let color = '#aaa'
+    if (isEqual(segments, ['0'])) {
+      color = 'red'
+    } else if (isEqual(segments, ['1'])) {
+      color = 'blue'
+    }
+
     return <NodeCircle ref={ref} cx={x} cy={y} fill={color} onMouseEnter={openTooltip} onMouseLeave={closeTooltip} />
-  }, [closeTooltip, color, openTooltip, x, y])
+  }, [closeTooltip, segments, openTooltip, x, y])
 
   const elements = useMemo(() => {
     return (

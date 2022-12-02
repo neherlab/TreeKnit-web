@@ -1,3 +1,4 @@
+import { isEqual } from 'lodash'
 import React, { useMemo, useRef } from 'react'
 import { Tooltip } from 'src/components/Common/Tooltip'
 import { useEnable } from 'src/hooks/useEnable'
@@ -5,27 +6,22 @@ import styled from 'styled-components'
 
 import { getNodesForEdge, Graph, GraphEdge } from './graph'
 
-const PathT = styled.path`
+const PathT = styled.path<{ color?: string }>`
   fill: none;
-  stroke-width: 4px;
-  stroke: #aaa;
+  stroke-width: 3px;
+  stroke: ${(props) => props.color ?? '#aaa'};
   pointer-events: auto;
   cursor: pointer;
 `
 
-const PathS = styled.path`
+const PathS = styled.path<{ color?: string }>`
   fill: none;
-  stroke-width: 4px;
-  stroke: #aaa;
+  stroke-width: 3px;
+  stroke: ${(props) => props.color ?? '#aaa'};
   pointer-events: auto;
   cursor: pointer;
   stroke-linecap: round;
 `
-
-export interface Point {
-  x: number
-  y: number
-}
 
 export interface EdgeProps {
   edge: GraphEdge
@@ -42,18 +38,34 @@ export function Edge({ edge, graph }: EdgeProps) {
   const paths = useMemo(() => {
     const { source, target } = getNodesForEdge(graph, edge)
 
+    let color = '#aaa'
+    if (isEqual(source.segments, ['0'])) {
+      color = 'red'
+    } else if (isEqual(source.segments, ['1'])) {
+      color = 'blue'
+    }
+
     const pathVertical = (
       <PathT
         ref={refVertical}
+        color={color}
         d={`M ${source.layout.xTBarStart}, ${source.layout.yTBarStart} L ${source.layout.xTBarEnd}, ${source.layout.yTBarEnd}`}
         onMouseEnter={openVerticalTooltip}
         onMouseOut={closeVerticalTooltip}
       />
     )
 
+    color = '#aaa'
+    if (isEqual(target.segments, ['0'])) {
+      color = 'red'
+    } else if (isEqual(target.segments, ['1'])) {
+      color = 'blue'
+    }
+
     const pathHorizontal = (
       <PathS
         ref={refHorizontal}
+        color={color}
         d={`M ${source.layout.xTBarStart}, ${target.y} L ${target.x}, ${target.y}`}
         onMouseEnter={openHorizontalTooltip}
         onMouseOut={closeHorizontalTooltip}
