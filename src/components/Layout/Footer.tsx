@@ -15,9 +15,11 @@ import LogoSib from 'src/assets/img/sib.logo.svg'
 import LogoUnibas from 'src/assets/img/unibas.svg'
 import LogoVercel from 'src/assets/img/powered-by-vercel.svg'
 
+export const PAGE_FOOTER_HEIGHT = 36
+
 const FooterContainer = styled(Container)`
   position: fixed;
-  height: 38px;
+  height: ${PAGE_FOOTER_HEIGHT}px;
   bottom: 0;
   padding: 6px 10px;
   box-shadow: ${(props) => props.theme.shadows.medium};

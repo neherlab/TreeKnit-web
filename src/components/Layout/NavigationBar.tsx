@@ -1,12 +1,10 @@
-import React, { useCallback, useState } from 'react'
+import React from 'react'
 import { useRouter } from 'next/router'
 import styled from 'styled-components'
 import {
-  Collapse,
   Nav as NavBase,
   Navbar as NavbarBase,
   NavbarBrand as NavbarBrandBase,
-  NavbarToggler as NavbarTogglerBase,
   NavItem as NavItemBase,
 } from 'reactstrap'
 
@@ -21,10 +19,9 @@ const navLinksLeft: Record<string, string> = {
 
 export const Navbar = styled(NavbarBase)`
   position: sticky;
-  height: 40px;
+  height: 50px;
   top: 0;
   width: 100%;
-  padding: 6px 10px;
   box-shadow: ${(props) => props.theme.shadows.medium};
   margin-bottom: 1rem;
   z-index: 100;
@@ -32,7 +29,10 @@ export const Navbar = styled(NavbarBase)`
   opacity: 1;
 `
 
-export const Nav = styled(NavBase)``
+export const Nav = styled(NavBase)`
+  margin-bottom: 4px;
+  margin-right: auto;
+`
 
 export const NavItem = styled(NavItemBase)`
   padding: 0 1rem;
@@ -41,61 +41,49 @@ export const NavItem = styled(NavItemBase)`
 `
 
 export const NavLink = styled(Link)<{ $active: boolean }>`
+  font-size: 1.1rem;
   color: ${({ $active, theme }) => ($active ? theme.primary : theme.bodyColor)};
   font-weight: ${({ $active }) => $active && 'bold'};
   text-decoration: ${({ $active }) => $active && 'underline'};
 `
 
-export const NavbarToggler = styled(NavbarTogglerBase)`
-  border: none;
-`
-
 const NavbarBrand = styled(NavbarBrandBase)`
+  height: 100%;
   padding: 0;
 `
 
 export const BrandText = styled.span`
   color: ${({ theme }) => theme.bodyColor};
-  font-size: 1.25rem;
+  font-size: 1.66rem;
   font-weight: bold;
-  margin: auto;
-  padding-right: 5px;
   text-align: center;
   vertical-align: middle;
 `
 
 const LogoTreeKnit = styled(LogoTreeKnitBase)`
-  width: 36px;
-  height: 36px;
-  margin: 1rem;
+  width: 32px;
+  height: 32px;
+  margin: 0 1rem;
 `
 
 export function NavigationBar() {
   const { pathname } = useRouter()
-  const [isOpen, setIsOpen] = useState(false)
-  const toggle = useCallback(() => setIsOpen(!isOpen), [isOpen])
-
   return (
-    <Navbar expand="md" light role="navigation">
+    <Navbar light role="navigation">
+      <NavbarBrand tag={Link} href="/">
+        <LogoTreeKnit />
+        <BrandText>{'TreeKnit'}</BrandText>
+      </NavbarBrand>
       <Nav>
-        <NavbarBrand tag={Link} href="/">
-          <LogoTreeKnit />
-          <BrandText>{'TreeKnit'}</BrandText>
-        </NavbarBrand>
-
-        <NavbarToggler onClick={toggle} />
-
-        <Collapse isOpen={isOpen} navbar>
-          {Object.entries(navLinksLeft).map(([url, text]) => {
-            return (
-              <NavItem key={url}>
-                <NavLink href={url} $active={url === pathname}>
-                  {text}
-                </NavLink>
-              </NavItem>
-            )
-          })}
-        </Collapse>
+        {Object.entries(navLinksLeft).map(([url, text]) => {
+          return (
+            <NavItem key={url}>
+              <NavLink href={url} $active={url === pathname}>
+                {text}
+              </NavLink>
+            </NavItem>
+          )
+        })}
       </Nav>
     </Navbar>
   )

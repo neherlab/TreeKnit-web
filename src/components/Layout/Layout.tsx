@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { Container as ContainerBase } from 'reactstrap'
 
 import { NavigationBar } from './NavigationBar'
-import { Footer } from './Footer'
+import { Footer, PAGE_FOOTER_HEIGHT } from './Footer'
 
 export const Container = styled(ContainerBase)`
   display: flex;
@@ -18,7 +18,8 @@ const MainContent = styled.main`
   display: flex;
   flex-direction: column;
   height: 100%;
-  margin: 0;
+  margin: 0 0.5em;
+  margin-bottom: ${PAGE_FOOTER_HEIGHT + 12}px;
 `
 
 export function Layout({ children }: PropsWithChildren<HTMLProps<HTMLDivElement>>) {

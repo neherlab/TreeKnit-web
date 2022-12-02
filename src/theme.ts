@@ -120,6 +120,35 @@ export const code = {
   },
 }
 
+const uploadZoneBoxShadow = `1px 1px 3px 3px ${rgba(gray700, 0.25)}`
+
+export const uploadZone = {
+  'background': {
+    normal: basicColors.transparent,
+    accept: rgba(themeColors.success, 0.25),
+    reject: rgba(themeColors.danger, 0.25),
+    hover: basicColors.transparent,
+  },
+  'color': {
+    normal: basicColors.gray700,
+    accept: themeColors.success,
+    reject: themeColors.danger,
+    hover: basicColors.gray900,
+  },
+  'border': {
+    normal: `4px ${rgba(basicColors.gray500, 0.75)} dashed`,
+    accept: `4px ${rgba(themeColors.success, 0.75)} dashed`,
+    reject: `4px ${rgba(themeColors.danger, 0.75)} dashed`,
+    hover: `4px ${rgba(basicColors.gray550, 0.75)} dashed`,
+  },
+  'box-shadow': {
+    normal: 'none',
+    accept: uploadZoneBoxShadow,
+    reject: uploadZoneBoxShadow,
+    hover: uploadZoneBoxShadow,
+  },
+}
+
 export const theme = {
   bodyColor: basicColors.gray700,
   bodyBg: basicColors.white,
@@ -132,6 +161,7 @@ export const theme = {
   font,
   shadows,
   outline,
+  uploadZone,
 }
 
 export type Theme = typeof theme
