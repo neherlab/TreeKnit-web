@@ -70,7 +70,7 @@ export function Edge({ edge, graph }: EdgeProps) {
 
   const tooltipVertical = useMemo(() => {
     return (
-      <Tooltip target={refVertical} isOpen={isVerticalTooltipOpen} fullWidth placement="">
+      <Tooltip target={refVertical} isOpen={isVerticalTooltipOpen} fullWidth>
         <pre>{JSON.stringify(edge, null, 2)}</pre>
       </Tooltip>
     )
@@ -78,7 +78,7 @@ export function Edge({ edge, graph }: EdgeProps) {
 
   const tooltipHorizontal = useMemo(() => {
     return (
-      <Tooltip target={refHorizontal} isOpen={isHorizontalTooltipOpen} fullWidth placement="">
+      <Tooltip target={refHorizontal} isOpen={isHorizontalTooltipOpen} fullWidth>
         <pre>{JSON.stringify(edge, null, 2)}</pre>
       </Tooltip>
     )
