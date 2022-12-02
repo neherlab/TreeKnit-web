@@ -23,7 +23,6 @@ import { LOADING } from 'src/components/Loading/Loading'
 import { SEO } from 'src/components/Common/SEO'
 import { Plausible } from 'src/components/Common/Plausible'
 import { ErrorBoundary } from 'src/components/Error/ErrorBoundary'
-import { PreviewWarning } from 'src/components/Common/PreviewWarning'
 import { getMdxComponents } from 'src/components/Common/MdxComponents'
 
 if (process.env.NODE_ENV === 'development') {
@@ -59,7 +58,6 @@ export function MyApp({ Component, pageProps }: AppProps) {
                 <I18nextProvider i18n={i18n}>
                   <ErrorBoundary>
                     <SEO />
-                    <PreviewWarning />
                     <Component {...pageProps} />
                     <ErrorPopup />
                   </ErrorBoundary>
