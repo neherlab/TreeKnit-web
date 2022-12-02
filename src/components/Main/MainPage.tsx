@@ -1,5 +1,6 @@
+import { isNil } from 'lodash'
 import React, { useCallback, useMemo, useState } from 'react'
-import { Col, Row, UncontrolledAlert } from 'reactstrap'
+import { Button, Col, Row, UncontrolledAlert } from 'reactstrap'
 
 import type { GraphRaw } from 'src/components/Tree/PhyloGraph/graph'
 import { Layout } from 'src/components/Layout/Layout'
@@ -13,6 +14,7 @@ export function MainPage() {
   const { t } = useTranslationSafe()
   const [graph, setGraph] = useState<GraphRaw | undefined>(undefined)
   const [error, setError] = useState<string | undefined>(undefined)
+  const removeGraph = useCallback(() => setGraph(undefined), [])
 
   const onUpload = useCallback(
     (file: File[]) => {
@@ -58,6 +60,18 @@ export function MainPage() {
         <Col className="w-100 h-100">{mainComponent}</Col>
       </Row>
       {errorComponent}
+      <Row noGutters className="my-2 w-100">
+        <Col className="d-flex w-100">
+          <Button
+            color={isNil(graph) ? 'secondary' : 'primary'}
+            className="ml-auto"
+            disabled={isNil(graph)}
+            onClick={removeGraph}
+          >
+            {t('Remove tree')}
+          </Button>
+        </Col>
+      </Row>
     </Layout>
   )
 }
