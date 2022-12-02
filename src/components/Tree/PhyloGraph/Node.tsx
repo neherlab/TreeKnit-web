@@ -1,7 +1,7 @@
 import React, { ReactElement, useMemo, useRef } from 'react'
-import { getGraphColor } from 'src/components/Tree/getGraphColor'
+import { getGraphColor, mixMultipleColors } from 'src/components/Tree/getGraphColor'
 import styled from 'styled-components'
-import { mix, opacify } from 'polished'
+import { opacify } from 'polished'
 
 import { useEnable } from 'src/hooks/useEnable'
 import { Tooltip } from 'src/components/Common/Tooltip'
@@ -49,9 +49,7 @@ export function Node({ node, graph }: CladeTreeNodeProps): ReactElement {
       return null
     }
 
-    let color = segments.reduce((color, segment) => {
-      return mix(0.5, color, getGraphColor(segment))
-    }, '#00000000')
+    let color = mixMultipleColors(segments.map((segment) => getGraphColor(segment)))
     color = opacify(1)(color)
     return <NodeCircle ref={ref} cx={x} cy={y} fill={color} onMouseEnter={openTooltip} onMouseLeave={closeTooltip} />
   }, [isLeaf, segments, x, y, openTooltip, closeTooltip])

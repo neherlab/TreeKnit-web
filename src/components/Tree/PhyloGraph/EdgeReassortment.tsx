@@ -3,7 +3,7 @@ import React, { useMemo, useRef } from 'react'
 import styled from 'styled-components'
 
 import { Tooltip } from 'src/components/Common/Tooltip'
-import { getGraphColor } from 'src/components/Tree/getGraphColor'
+import { getGraphColor, mixMultipleColors } from 'src/components/Tree/getGraphColor'
 import { useEnable } from 'src/hooks/useEnable'
 import { PHYLO_GRAPH_EDGE_THICKNESS } from 'src/components/Tree/PhyloGraph/constants'
 import { getNodesForEdge, Graph, GraphEdge } from './graph'
@@ -26,12 +26,8 @@ export function EdgeReassortment({ edge, graph }: EdgeEdgeReassortmentProps) {
   const path = useMemo(() => {
     const { source, target } = getNodesForEdge(graph, edge)
 
-    const sourceColor = source.segments.reduce((color, segment) => {
-      return mix(0.5, color, getGraphColor(segment))
-    }, '#00000000')
-    const targetColor = target.segments.reduce((color, segment) => {
-      return mix(0.5, color, getGraphColor(segment))
-    }, '#00000000')
+    const sourceColor = mixMultipleColors(source.segments.map((segment) => getGraphColor(segment)))
+    const targetColor = mixMultipleColors(target.segments.map((segment) => getGraphColor(segment)))
     const color = mix(0.5, targetColor, sourceColor)
 
     return (

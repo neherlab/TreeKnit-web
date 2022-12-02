@@ -1,6 +1,6 @@
 import { isInteger, isNil } from 'lodash'
 import { colorHash } from 'src/helpers/colorHash'
-import { lighten } from 'polished'
+import { lighten, mix } from 'polished'
 
 /**
  * Colors from seaborn Python package, rearranged
@@ -43,4 +43,9 @@ export function getGraphColor(x: string | number) {
   const i = parseIntMaybe(x)
   const color = !isNil(i) && i < GRAPH_COLORS.length ? GRAPH_COLORS[i] : colorHash(x.toString())
   return lighten(0.125)(color)
+}
+
+/** Mix an array of color (represented as hex strings) */
+export function mixMultipleColors(colors: string[]): string {
+  return colors.reduce((result, color) => mix(0.5, result, color), '#00000000')
 }
