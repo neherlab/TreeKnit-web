@@ -20,6 +20,8 @@ export interface Graph {
 export interface GraphNodeRaw {
   id: string
   name: string
+  height: number
+  segments: string[]
 }
 
 export interface GraphNode extends GraphNodeRaw {
@@ -66,6 +68,7 @@ export interface GraphEdge {
   id: string
   source: string
   target: string
+  branchLength: number
 }
 
 export function calculateGraphLayout(graphRaw: GraphRaw, width: number, height: number): Graph {

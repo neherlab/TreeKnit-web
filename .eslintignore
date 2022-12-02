@@ -9,3 +9,4 @@
 /node_modules
 /public
 /tsconfig.json
+src/components/Tree/nwk/icytree/**/*
